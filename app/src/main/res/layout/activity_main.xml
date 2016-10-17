@@ -29,11 +29,12 @@
                 android:orientation="horizontal"
                 android:id="@+id/rgrpStorageOptions">
 
-        <RadioButton android:layout_width="wrap_content"
+        <RadioButton android:id="@+id/internal"
+            android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
-                     android:text="Internal"
-        android:checked="true"/>
-        <RadioButton android:layout_width="wrap_content"
+                     android:text="Internal"/>
+        <RadioButton android:id="@+id/external"
+            android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
                      android:text="External"/>
     </RadioGroup>

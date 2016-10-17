@@ -1,8 +1,12 @@
 package com.example.android.warehouse;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -41,13 +45,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String input = mInputEditText.getText().toString();
-                mFileIO.writeInternal("data.txt",input);
+//                mFileIO.writeInternal("data.txt",input);
+                boolean isExternal = mStorageOptionsRadioGroup.getCheckedRadioButtonId() == R.id.external;
+                mFileIO.saveToCache(input,isExternal);
             }
         });
         mLoadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOutputTextView.setText(mFileIO.readInternal("data.txt"));
+                boolean isExternal = mStorageOptionsRadioGroup.getCheckedRadioButtonId() == R.id.external;
+                mOutputTextView.setText(mFileIO.readFromCache(isExternal));
             }
         });
         // by default save and load from external
@@ -58,11 +65,35 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"is external storage writable? "+mFileIO.isExternalStorageWritable());
         Log.d(TAG,"available external memory: "+mFileIO.getAvailableExternalMemory());
 
-        for(String fileName : mFileIO.getInternalFiles()){
-            Log.d(TAG,fileName);
-        }
-        for(String fileName : mFileIO.getAlbumFiles()){
-            Log.d(TAG,fileName);
-        }
+//        for(String fileName : mFileIO.getInternalFiles()){
+//            Log.d(TAG,fileName);
+//        }
+//        for(String fileName : mFileIO.getAlbumFiles()){
+//            Log.d(TAG,fileName);
+//        }
+
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, 1,Menu.NONE,"settings");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==1){
+            openAppSettings();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openAppSettings(){
+        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+    }
+
 }

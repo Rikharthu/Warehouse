@@ -18,7 +18,7 @@ public class WarehouseApplicationSettings {
      * By default use Internal storage */
     public String getStoragePreference() {
         // by default use Internal storage
-        return mSharedPreferences.getString("Storage", StorageType.INTERNAL);
+        return mSharedPreferences.getString("Storage", "INTERNAL");
     }
 
     /** Set preferred storage type */

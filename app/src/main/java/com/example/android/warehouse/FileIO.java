@@ -6,9 +6,15 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,29 +32,81 @@ public class FileIO {
     // TODO save from assets
 
     /** get file directory, depending on the chosen storage method */
-    public static File getFileDirectory(Context context) {
-        // retrieve storage type from shared preferences by using our helper class
-        WarehouseApplicationSettings settings = new MemeMakerApplicationSettings(context);
-        String storageType = settings.getStoragePreference();
+//    public static File getFileDirectory(Context context) {
+//        // retrieve storage type from shared preferences by using our helper class
+//        WarehouseApplicationSettings settings = new MemeMakerApplicationSettings(context);
+//        String storageType = settings.getStoragePreference();
+//
+//        // depending on selected storage type return according file directory
+//        if(storageType.equals(StorageType.INTERNAL)) {
+//            // internal storage
+//            // data/data/com.teamtreehouse.mememaker/files
+//            return context.getFilesDir();
+//        } else {
+//            // external storage
+//            // check for availability
+//            if(isExternalStorageAvailable()) {
+//                if(storageType.equals(StorageType.PRIVATE_EXTERNAL)) {
+//                    return context.getExternalFilesDir(null);
+//                } else {
+//                    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//                }
+//            } else {
+//                return context.getFilesDir();
+//            }
+//        }
+//    }
 
-        // depending on selected storage type return according file directory
-        if(storageType.equals(StorageType.INTERNAL)) {
-            // internal storage
-            // data/data/com.teamtreehouse.mememaker/files
-            return context.getFilesDir();
-        } else {
-            // external storage
-            // check for availability
-            if(isExternalStorageAvailable()) {
-                if(storageType.equals(StorageType.PRIVATE_EXTERNAL)) {
-                    return context.getExternalFilesDir(null);
-                } else {
-                    return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                }
-            } else {
-                return context.getFilesDir();
+    public boolean saveToCache(String text,boolean isExternal){
+        File cacheDir;
+        if(isExternal){
+            if(isExternalStorageReadable()){
+                cacheDir= mContext.getExternalCacheDir();
+            }else{
+                return false;
             }
+        }else{
+            cacheDir=mContext.getCacheDir();
         }
+        File cacheFile = new File(cacheDir,"cache.dat");
+        try {
+//            FileOutputStream out=mContext.openFileOutput(cacheFile.getAbsolutePath(),Context.MODE_PRIVATE);
+            FileOutputStream out=new FileOutputStream(cacheFile);
+
+            out.write(text.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public String readFromCache(boolean isExternal){
+        File cacheDir;
+        StringBuffer textBuffer=new StringBuffer();
+        if(isExternal){
+            if(isExternalStorageReadable()){
+                cacheDir= mContext.getExternalCacheDir();
+            }else{
+                return null;
+            }
+        }else{
+            cacheDir=mContext.getCacheDir();
+        }
+        File cacheFile = new File(cacheDir,"cache.dat");
+        try {
+            FileInputStream in=new FileInputStream(cacheFile);
+            BufferedReader bis=new BufferedReader(new InputStreamReader(in));
+            String line;
+            while((line=bis.readLine())!=null){
+                textBuffer.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        Log.d(TAG,"readFromCache finished()");
+        return textBuffer.toString();
     }
 
     public static FileIO getInstance(Context context){
